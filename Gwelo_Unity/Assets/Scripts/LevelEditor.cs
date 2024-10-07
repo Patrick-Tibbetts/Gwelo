@@ -5,10 +5,11 @@ using TMPro; // Add this at the top to use TextMeshPro
 public class LevelEditor : MonoBehaviour
 {
     public GameObject[] prefabs;
-    public TextMeshProUGUI selectedPrefabText; // Use TextMeshProUGUI instead of Text
+    public TextMeshProUGUI selectedPrefabText;
 
     private GameObject currentPrefab;
     private Vector3 mousePosition;
+    private bool isPlacing = false; // Flag to determine if we are placing an object
 
     void Start()
     {
@@ -35,22 +36,29 @@ public class LevelEditor : MonoBehaviour
     // Handle user input for placing objects
     void HandleInput()
     {
-        if (Input.GetMouseButtonDown(0)) // Left mouse button to place objects
-        {
-            PlaceObject();
-        }
-
+        // Use Alpha keys to select prefabs
         if (Input.GetKeyDown(KeyCode.Alpha1)) // Press 1 to select first prefab
         {
-            currentPrefab = prefabs[0];
-            UpdateSelectedPrefabUI();
+            if (prefabs.Length > 0)
+            {
+                currentPrefab = prefabs[0];
+                UpdateSelectedPrefabUI();
+            }
         }
         if (Input.GetKeyDown(KeyCode.Alpha2)) // Press 2 to select second prefab
         {
-            currentPrefab = prefabs[1];
-            UpdateSelectedPrefabUI();
+            if (prefabs.Length > 1)
+            {
+                currentPrefab = prefabs[1];
+                UpdateSelectedPrefabUI();
+            }
         }
-        // Add more keys for additional prefabs if necessary.
+
+        // Place object when left mouse button is clicked
+        if (Input.GetMouseButtonDown(0) && currentPrefab != null) // Left mouse button to place objects
+        {
+            PlaceObject();
+        }
     }
 
     // Method to place objects at the mouse position
@@ -58,7 +66,12 @@ public class LevelEditor : MonoBehaviour
     {
         if (currentPrefab != null)
         {
+            // Instantiate the object at the mouse position with the current rotation
             Instantiate(currentPrefab, mousePosition, Quaternion.identity);
+        }
+        else
+        {
+            Debug.LogWarning("Current prefab is null! Please select a prefab.");
         }
     }
 
