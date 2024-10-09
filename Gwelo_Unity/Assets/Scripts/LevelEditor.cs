@@ -4,11 +4,12 @@ using TMPro;
 
 public class LevelEditor : MonoBehaviour
 {
-    public GameObject[] prefabs;
-    public TextMeshProUGUI selectedPrefabText;
+    public GameObject[] prefabs; // Array of prefabs for placing
+    public TextMeshProUGUI selectedPrefabText; // UI element to display the selected prefab
 
-    private GameObject currentPrefab;
-    private Vector3 mousePosition;
+    private GameObject currentPrefab; // Prefab selected from the UI
+    private GameObject selectedObject; // Object currently selected for movement
+    private Vector3 mousePosition; // Position of the mouse in the world space
 
     // Define the grid size (for example, 1 unit)
     public float gridSize = 2f;
@@ -37,18 +38,20 @@ public class LevelEditor : MonoBehaviour
         }
     }
 
-    // Handle user input for placing objects
+    // Handle user input for placing and selecting objects
     void HandleInput()
     {
         // Use Alpha keys to select prefabs
         if (Input.GetKeyDown(KeyCode.Alpha1) && prefabs.Length > 0) // Press 1 to select first prefab
         {
             currentPrefab = prefabs[0];
+            selectedObject = null; // Deselect any currently selected object
             UpdateSelectedPrefabUI();
         }
         if (Input.GetKeyDown(KeyCode.Alpha2) && prefabs.Length > 1) // Press 2 to select second prefab
         {
             currentPrefab = prefabs[1];
+            selectedObject = null; // Deselect any currently selected object
             UpdateSelectedPrefabUI();
         }
 
@@ -57,6 +60,18 @@ public class LevelEditor : MonoBehaviour
         {
             PlaceObject();
         }
+
+        // Select object for movement when right mouse button is clicked
+        if (Input.GetMouseButtonDown(1)) // Right mouse button to select an object
+        {
+            SelectObject();
+        }
+
+        // Move the selected object if we have one
+        if (selectedObject != null)
+        {
+            MoveSelectedObject();
+        }
     }
 
     // Method to place objects at the mouse position
@@ -64,41 +79,28 @@ public class LevelEditor : MonoBehaviour
     {
         if (currentPrefab != null)
         {
-            // Create an instance of the prefab to calculate its height
-            GameObject prefabInstance = Instantiate(currentPrefab);
+            Vector3 adjustedPosition = new Vector3(
+                SnapToGrid(mousePosition.x),
+                SnapToGrid(mousePosition.y),
+                SnapToGrid(mousePosition.z)
+            );
 
-            // Get the collider of the prefab to determine its bounds
-            Collider prefabCollider = prefabInstance.GetComponent<Collider>();
+            Collider prefabCollider = currentPrefab.GetComponent<Collider>();
             if (prefabCollider != null)
             {
-                // Adjust the Y position based on the prefab's collider
-                float yOffset = prefabCollider.bounds.extents.y; // Half the height of the prefab
-
-                // Snap the position to the grid, and adjust the Y to place the bottom of the prefab on the ground
-                Vector3 adjustedPosition = new Vector3(
-                    SnapToGrid(mousePosition.x), // Snap X to grid
-                    SnapToGrid(mousePosition.y + yOffset), // Adjust Y by the height of the prefab
-                    SnapToGrid(mousePosition.z)  // Snap Z to grid
-                );
-
-                // Destroy the temporary instance used for height calculation
-                Destroy(prefabInstance);
-
-                // Check for overlap at the snapped position
-                if (!IsOverlapping(prefabCollider, adjustedPosition))
+                // Check for overlap before placing and adjust Y if needed
+                while (IsOverlapping(prefabCollider, adjustedPosition))
                 {
-                    // Instantiate the prefab at the calculated position if no overlap
-                    Instantiate(currentPrefab, adjustedPosition, Quaternion.identity);
+                    adjustedPosition.y += prefabCollider.bounds.size.y + 0.5f; // Adjust Y position
+                    Debug.Log("Raising object by Y to avoid overlap.");
                 }
-                else
-                {
-                    Debug.LogWarning("Cannot place prefab here; it would overlap with another object.");
-                }
+
+                // Instantiate the object at the adjusted position
+                Instantiate(currentPrefab, adjustedPosition, Quaternion.identity);
             }
             else
             {
                 Debug.LogWarning("Prefab does not have a collider. Unable to adjust placement.");
-                Destroy(prefabInstance); // Destroy the temporary instance
             }
         }
         else
@@ -107,17 +109,70 @@ public class LevelEditor : MonoBehaviour
         }
     }
 
-    // Method to check for overlaps using the prefab's bounds
+    // Method to select an object with a right-click
+    void SelectObject()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, prefabLayer))
+        {
+            selectedObject = hit.collider.gameObject; // Select the object
+            currentPrefab = null; // Deselect prefab to move the object
+
+            // Log the selected object
+            Debug.Log("Selected Object: " + selectedObject.name);
+
+            UpdateSelectedPrefabUI();
+        }
+        else
+        {
+            Debug.Log("No object hit.");
+        }
+    }
+
+    // Method to move the selected object to the mouse position
+    void MoveSelectedObject()
+    {
+        if (selectedObject != null)
+        {
+            Vector3 adjustedPosition = new Vector3(
+                SnapToGrid(mousePosition.x),
+                SnapToGrid(mousePosition.y),
+                SnapToGrid(mousePosition.z)
+            );
+
+            selectedObject.transform.position = adjustedPosition;
+        }
+    }
+
+    // Method to check for overlaps with stricter conditions
     private bool IsOverlapping(Collider prefabCollider, Vector3 position)
     {
-        // Use the collider bounds to create the check box size, with a small margin to account for snapping accuracy
-        Vector3 boxSize = prefabCollider.bounds.size / 2; // Half extents
+        // Check if there are any colliders overlapping within a certain proximity
+        Collider[] overlappingColliders = Physics.OverlapBox(position, prefabCollider.bounds.extents, Quaternion.identity, prefabLayer);
 
-        // Use Physics.OverlapBox to check for any colliders at the intended placement position
-        Collider[] colliders = Physics.OverlapBox(position, boxSize, Quaternion.identity, prefabLayer);
+        foreach (Collider collider in overlappingColliders)
+        {
+            if (collider != prefabCollider)
+            {
+                Vector3 colliderPosition = collider.transform.position;
 
-        // If there are any colliders found that aren't the ground or itself, it means there's overlap
-        return colliders.Length > 0;
+                // Check if the X and Z are the same
+                bool xAndZSame = Mathf.Abs(colliderPosition.x - position.x) < 0.01f && Mathf.Abs(colliderPosition.z - position.z) < 0.01f;
+
+                // If X and Z are the same, check if the Y is different enough (allow stacking with enough space)
+                float yDifference = Mathf.Abs(colliderPosition.y - position.y);
+                float minimumAllowedYDifference = prefabCollider.bounds.size.y + 1.0f;
+
+                if (xAndZSame && yDifference < minimumAllowedYDifference)
+                {
+                    return true; // Overlapping detected
+                }
+            }
+        }
+
+        return false; // No overlapping detected
     }
 
     // Method to snap a value to the nearest grid size
@@ -126,16 +181,20 @@ public class LevelEditor : MonoBehaviour
         return Mathf.Round(value / gridSize) * gridSize; // Snap to the nearest grid point
     }
 
-    // Update the UI to show the selected prefab
+    // Update the UI to show the selected prefab or object
     void UpdateSelectedPrefabUI()
     {
         if (currentPrefab != null)
         {
             selectedPrefabText.text = "Selected Prefab: " + currentPrefab.name;
         }
+        else if (selectedObject != null)
+        {
+            selectedPrefabText.text = "Selected Object: " + selectedObject.name;
+        }
         else
         {
-            selectedPrefabText.text = "No Prefab Selected";
+            selectedPrefabText.text = "No Prefab or Object Selected";
         }
     }
 }
