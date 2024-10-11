@@ -912,3 +912,33 @@ AssetImportParameters requested are different than current active one (requested
   custom:container-demuxer-ogg: 62fdf1f143b41e24485cea50d1cbac27 -> 
   custom:video-decoder-webm-vp8: 9c59270c3fd7afecdb556c50c9e8de78 -> 
   custom:audio-decoder-ogg-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+AssetImportWorkerClient::OnTransportError - code=2 error=End of file
+Internal: Possible leak. All render texture surfaces should be removed from IdMap when destructed using RenderTextureMap::Remove(RenderSurfaceBase* rs).
+AssetImportWorker is now disconnected from the server
+Obtained 26 stack frames.
+#0  0x0000019a3f4ef8 in dispatch_release
+#1  0x1a4c000104cad478 in AssetImportWorkerClient::~AssetImportWorkerClient()
+#2  0x00000104c3d148 in core::unique_ptr<AssetImportWorkerClient>::~unique_ptr()
+#3  0x0000019a4642e8 in __cxa_finalize_ranges
+#4  0x1e2f00019a464070 in exit
+#5  0x9a658001055fffa8 in -[EditorApplication applicationShouldTerminate:]
+#6  0x0000019e0ff918 in -[NSApplication _docController:shouldTerminate:]
+#7  0x2d0b00019e0ff714 in __91-[NSDocumentController(NSInternal) _closeAllDocumentsWithDelegate:shouldTerminateSelector:]_block_invoke
+#8  0xef7f80019e0ff2a8 in -[NSDocumentController(NSInternal) _closeAllDocumentsWithDelegate:shouldTerminateSelector:]
+#9  0xb82880019e0fedb4 in -[NSDocumentController(NSInternal) __closeAllDocumentsWithDelegate:shouldTerminateSelector:]
+#10 0x123700019e0fe978 in -[NSApplication _shouldTerminate]
+#11 0xce2d00019e21b32c in -[NSApplication(NSAppleEventHandling) _handleAEQuit]
+#12 0xc56000019deea3c4 in -[NSApplication(NSAppleEventHandling) _handleCoreEvent:withReplyEvent:]
+#13 0x9e1780019b78f374 in -[NSAppleEventManager dispatchRawAppleEvent:withRawReply:handlerRefCon:]
+#14 0x511100019b78f168 in _NSAppleEventManagerGenericHandler
+#15 0x372c8001a16a49c4 in _AppleEventsCheckInAppWithBlock
+#16 0x3a650001a16a42ec in _AppleEventsCheckInAppWithBlock
+#17 0xba618001a169d8a8 in aeProcessAppleEvent
+#18 0xf8190001a4e3802c in AEProcessAppleEvent
+#19 0x750d00019dee4074 in _DPSNextEvent
+#20 0x7a4880019e6d9808 in -[NSApplication(NSEventRouting) _nextEventMatchingEventMask:untilDate:inMode:dequeue:]
+#21 0x436300019ded709c in -[NSApplication run]
+#22 0x680c80019deae2e0 in NSApplicationMain
+#23 0x6c3e8001055fe8b0 in EditorMain(int, char const**)
+#24 0x000001055febe8 in main
+#25 0x0000019a21e0e0 in start
