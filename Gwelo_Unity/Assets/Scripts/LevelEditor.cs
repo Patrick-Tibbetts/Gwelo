@@ -6,10 +6,12 @@ public class LevelEditor : MonoBehaviour
 {
     public GameObject[] prefabs; // Array of prefabs for placing
     public TextMeshProUGUI selectedPrefabText; // UI element to display the selected prefab
+    public Material highlightMaterial; // Material to use for highlighting
 
     private GameObject currentPrefab; // Prefab selected from the UI
     private GameObject selectedObject; // Object currently selected for movement
     private Vector3 mousePosition; // Position of the mouse in the world space
+    private Material originalMaterial; // Store the original material of the selected object
 
     // Define the grid size (for example, 1 unit)
     public float gridSize = 2f;
@@ -45,13 +47,13 @@ public class LevelEditor : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha1) && prefabs.Length > 0) // Press 1 to select first prefab
         {
             currentPrefab = prefabs[0];
-            selectedObject = null; // Deselect any currently selected object
+            DeselectObject(); // Deselect any currently selected object
             UpdateSelectedPrefabUI();
         }
         if (Input.GetKeyDown(KeyCode.Alpha2) && prefabs.Length > 1) // Press 2 to select second prefab
         {
             currentPrefab = prefabs[1];
-            selectedObject = null; // Deselect any currently selected object
+            DeselectObject(); // Deselect any currently selected object
             UpdateSelectedPrefabUI();
         }
 
@@ -117,17 +119,46 @@ public class LevelEditor : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, prefabLayer))
         {
-            selectedObject = hit.collider.gameObject; // Select the object
-            currentPrefab = null; // Deselect prefab to move the object
+            if (selectedObject != hit.collider.gameObject)
+            {
+                DeselectObject(); // Deselect the previous object
 
-            // Log the selected object
-            Debug.Log("Selected Object: " + selectedObject.name);
+                selectedObject = hit.collider.gameObject; // Select the new object
+                currentPrefab = null; // Deselect prefab to move the object
+
+                // Highlight the selected object
+                Renderer objectRenderer = selectedObject.GetComponent<Renderer>();
+                if (objectRenderer != null)
+                {
+                    originalMaterial = objectRenderer.material; // Store the original material
+                    objectRenderer.material = highlightMaterial; // Set the highlight material
+                }
+
+                // Log the selected object
+                Debug.Log("Selected Object: " + selectedObject.name);
+            }
 
             UpdateSelectedPrefabUI();
         }
         else
         {
             Debug.Log("No object hit.");
+        }
+    }
+
+    // Method to deselect the currently selected object and remove highlight
+    void DeselectObject()
+    {
+        if (selectedObject != null)
+        {
+            Renderer objectRenderer = selectedObject.GetComponent<Renderer>();
+            if (objectRenderer != null && originalMaterial != null)
+            {
+                objectRenderer.material = originalMaterial; // Restore the original material
+            }
+
+            selectedObject = null;
+            originalMaterial = null;
         }
     }
 
@@ -143,6 +174,11 @@ public class LevelEditor : MonoBehaviour
             );
 
             selectedObject.transform.position = adjustedPosition;
+
+            if (Input.GetKeyDown(KeyCode.Backspace))
+            {
+                Destroy(selectedObject);
+            }
         }
     }
 
