@@ -2,6 +2,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 // Karma's gonna come for all of us but I hope and I hope I just hope she comes, comes for you first OH
+// Joni's on a juice cleanse, joni's got the whole room trained
+// YOU WISH
+// YOU WERE
+// LIKE HER
 public class LevelEditor : MonoBehaviour
 {
     public GameObject[] prefabs; // Array of prefabs for placing
