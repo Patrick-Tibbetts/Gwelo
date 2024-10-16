@@ -19,7 +19,7 @@ public class LevelEditor : MonoBehaviour
     private Material originalMaterial; // Store the original material of the selected object
 
     // Define the grid size (for example, 1 unit)
-    public float gridSize = 2f;
+    public float gridSize = 1.0f;
     // Define the layer for the prefabs (set this in the Inspector)
     public LayerMask prefabLayer;
 
@@ -177,7 +177,7 @@ public class LevelEditor : MonoBehaviour
                 SnapToGrid(mousePosition.y),
                 SnapToGrid(mousePosition.z)
             );
-
+            
             selectedObject.transform.position = adjustedPosition;
 
             if (Input.GetKeyDown(KeyCode.Backspace))
