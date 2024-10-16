@@ -7,6 +7,8 @@ using TMPro;
 // YOU WERE
 // LIKE HER
 // Hold onto hope if you got it and don't let it go for nobody
+// They say that dreaming is free
+// I wouldn't care what it cost me
 public class LevelEditor : MonoBehaviour
 {
     public GameObject[] prefabs; // Array of prefabs for placing
