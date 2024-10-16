@@ -20,6 +20,8 @@ public class LevelEditor : MonoBehaviour
     private Vector3 mousePosition; // Position of the mouse in the world space
     private Material originalMaterial; // Store the original material of the selected object
 
+    private bool ObjectSelected;
+
     // Define the grid size (for example, 1 unit)
     public float gridSize = 1.0f;
     // Define the layer for the prefabs (set this in the Inspector)
@@ -27,6 +29,7 @@ public class LevelEditor : MonoBehaviour
 
     void Start()
     {
+        ObjectSelected = false;
         UpdateSelectedPrefabUI();
     }
 
@@ -68,12 +71,16 @@ public class LevelEditor : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && currentPrefab != null) // Left mouse button to place objects
         {
             PlaceObject();
+            DeselectObject();
+            Debug.Log("Object Placed");
+            ObjectSelected = false;
         }
 
         // Select object for movement when right mouse button is clicked
         if (Input.GetMouseButtonDown(1)) // Right mouse button to select an object
         {
             SelectObject();
+            ObjectSelected = true;
         }
 
         // Move the selected object if we have one
@@ -121,6 +128,7 @@ public class LevelEditor : MonoBehaviour
     // Method to select an object with a right-click
     void SelectObject()
     {
+        ObjectSelected = true;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
@@ -166,7 +174,9 @@ public class LevelEditor : MonoBehaviour
 
             selectedObject = null;
             originalMaterial = null;
+            Debug.Log("Deselected Object");
         }
+
     }
 
     // Method to move the selected object to the mouse position
