@@ -68,7 +68,7 @@ public class LevelEditor : MonoBehaviour
         }
 
         // Place object when left mouse button is clicked
-        if (Input.GetMouseButtonDown(0) /* && currentPrefab != null */) // Left mouse button to place objects
+        if (Input.GetMouseButtonDown(0) && currentPrefab != null) // Left mouse button to place objects
         {
             PlaceObject();
             DeselectObject();
@@ -139,7 +139,6 @@ public class LevelEditor : MonoBehaviour
                 DeselectObject(); // Deselect the previous object
 
                 selectedObject = hit.collider.gameObject; // Select the new object
-                Debug.Log("selectedObject Set");
                 currentPrefab = null; // Deselect prefab to move the object
 
                 // Highlight the selected object
