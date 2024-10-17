@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731704, g: 0.1341472, b: 0.121078566, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -640,8 +640,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabs:
   - {fileID: 5936742681839410113, guid: 194d6fb38b7524f078a7c9fe76e2f245, type: 3}
-  - {fileID: 919132149155446097, guid: 34284466589434ef2ae1432b77cad540, type: 3}
+  - {fileID: 3981309483827507895, guid: a4353d05c45102c48bd567aed7eed781, type: 3}
   selectedPrefabText: {fileID: 460744718}
+  highlightMaterial: {fileID: 0}
   gridSize: 1
   prefabLayer:
     serializedVersion: 2
