@@ -68,7 +68,7 @@ public class LevelEditor : MonoBehaviour
         }
 
         // Place object when left mouse button is clicked
-        if (Input.GetMouseButtonDown(0) /* && currentPrefab != null */) // Left mouse button to place objects
+        if (Input.GetMouseButtonDown(0)) // Left mouse button to place objects
         {
             PlaceObject();
             DeselectObject();
