@@ -182,42 +182,42 @@ public class LevelEditor : MonoBehaviour
 
     // Method to move the selected object to the mouse position
     // Method to move the selected object to the mouse position
-    void MoveSelectedObject()
+void MoveSelectedObject()
+{
+    if (selectedObject != null)
     {
-        if (selectedObject != null)
+        Vector3 adjustedPosition = new Vector3(
+            SnapToGrid(mousePosition.x),
+            SnapToGrid(mousePosition.y),
+            SnapToGrid(mousePosition.z)
+        );
+
+        Collider selectedObjectCollider = selectedObject.GetComponent<Collider>();
+
+        if (selectedObjectCollider != null)
         {
-            Vector3 adjustedPosition = new Vector3(
-                SnapToGrid(mousePosition.x),
-                SnapToGrid(mousePosition.y),
-                SnapToGrid(mousePosition.z)
-            );
-
-            Collider selectedObjectCollider = selectedObject.GetComponent<Collider>();
-
-            if (selectedObjectCollider != null)
-            {
-                // Check if the new position would cause overlap
-                if (!IsOverlapping(selectedObjectCollider, adjustedPosition))
-                {
-                    selectedObject.transform.position = adjustedPosition;
-                }
-                else
-                {
-                    Debug.Log("Cannot move object: Overlapping with another object.");
-                }
-            }
-            else
+            // Check if the new position would cause overlap
+            if (!IsOverlapping(selectedObjectCollider, adjustedPosition))
             {
                 selectedObject.transform.position = adjustedPosition;
             }
-
-            // Optionally delete the object with Backspace
-            if (Input.GetKeyDown(KeyCode.Backspace))
+            else
             {
-                Destroy(selectedObject);
+                Debug.Log("Cannot move object: Overlapping with another object.");
             }
         }
+        else
+        {
+            selectedObject.transform.position = adjustedPosition;
+        }
+
+        // Optionally delete the object with Backspace
+        if (Input.GetKeyDown(KeyCode.Backspace))
+        {
+            Destroy(selectedObject);
+        }
     }
+}
 
 
     // Method to check for overlaps with stricter conditions
