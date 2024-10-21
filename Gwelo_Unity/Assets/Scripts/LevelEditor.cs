@@ -66,6 +66,12 @@ public class LevelEditor : MonoBehaviour
             DeselectObject(); // Deselect any currently selected object
             UpdateSelectedPrefabUI();
         }
+        if (Input.GetKeyDown(KeyCode.Alpha3) && prefabs.Length > 2) // Press 1 to select first prefab
+        {
+            currentPrefab = prefabs[2];
+            DeselectObject(); // Deselect any currently selected object
+            UpdateSelectedPrefabUI();
+        }
 
         // Place object when left mouse button is clicked
         if (Input.GetMouseButtonDown(0)) // Left mouse button to place objects
